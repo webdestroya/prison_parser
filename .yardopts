@@ -1,0 +1,6 @@
+--no-cache
+--no-private
+--hide-void-return
+--output-dir ./docs
+--readme README.md
+lib/**/*.rb
