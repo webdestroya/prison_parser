@@ -12,8 +12,6 @@ describe PrisonParser::Utils::Parser do
     it "loads full prison" do
       prison = parser.load("spec/fixtures/full.prison")
       skip "TODO"
-      #puts prison.inspect
-      #puts PrisonParser::Utils::Writer.new.write_node(prison.Construction.PlanningJobs).stream.string
     end
   end
 

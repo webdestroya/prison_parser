@@ -26,12 +26,12 @@ describe PrisonParser::Utils::Writer do
     end
   end
 
-  describe "#write_node" do
-    it "handles inlining" do
-      finance = prison.Objects.nodes["[i 2530]"]
-      puts finance.nodes.size
-      puts finance.properties.size
-      puts PrisonParser::Utils::Writer.new.write_node(finance).stream.string
-    end
-  end
+  # describe "#write_node" do
+  #   it "handles inlining" do
+  #     finance = prison.Objects.nodes["[i 2530]"]
+  #     puts finance.nodes.size
+  #     puts finance.properties.size
+  #     puts PrisonParser::Utils::Writer.new.write_node(finance).stream.string
+  #   end
+  # end
 end
