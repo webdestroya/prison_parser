@@ -4,14 +4,42 @@ describe PrisonParser::Utils::Parser do
   let(:parser) { PrisonParser::Utils::Parser.new }
 
   describe "#load" do
-    it "loads deathrow prison" do
-      prison = parser.load("spec/fixtures/deathrow.prison")
-      skip "TODO"
+
+    context "loads various prisons" do
+      it "loads deathrow prison" do
+        prison = parser.load(File.open("spec/fixtures/deathrow.prison"))
+        expect(prison.NumCellsX).to eq "110"
+        expect(prison.NumCellsY).to eq "80"
+      end
+
+      it "loads full prison" do
+        prison = parser.load(File.open("spec/fixtures/full.prison"))
+      end
     end
 
-    it "loads full prison" do
-      prison = parser.load("spec/fixtures/full.prison")
-      skip "TODO"
+    context "only adds valid properties" do
+      let(:prop_test_str) do
+        <<-PROPTEST
+        Thing yar
+        BEGIN Stuff
+          Another thing
+          Another thing
+        END
+        BEGIN InlineProps Something 1  Blah yar  Hah 1.2 END
+        PROPTEST
+      end
+      let(:stream) { StringIO.new(prop_test_str) }
+
+      it "does not add BEGIN or END as properties" do
+        prison = parser.load(stream)
+
+        expect(prison.InlineProps.Something).to eq "1"
+        expect(prison.InlineProps.Blah).to eq "yar"
+        expect(prison.InlineProps.Hah).to eq "1.2"
+
+        expect(prison.InlineProps.properties.keys.sort).to eq %w(Blah Hah Something)
+
+      end
     end
   end
 

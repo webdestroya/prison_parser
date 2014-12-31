@@ -4,8 +4,6 @@ module PrisonParser
     attr_reader :properties
     attr_reader :label
 
-    attr_accessor :allow_inline
-
     def initialize(label=nil)
       @label = label
       @nodes = Hash.new
@@ -13,29 +11,18 @@ module PrisonParser
       @allow_inline = true
     end
 
-    def method_missing(name, *args, &block)
-      # Look in Nodes
-      # Look in properties
-      # if ends with ?, cast property to boolean
-      # else SUPER      
-
-      if nodes.has_key?(name.to_s)
-        nodes[name.to_s]
-      elsif properties.has_key?(name.to_s)
-        properties[name.to_s]
-      else
-        super
-      end
-    end
-
     def allow_inline?
       @allow_inline
+    end
+
+    def prevent_inlining!
+      @allow_inline = false
     end
 
     def inspect
       str = StringIO.new("")
       str.write "<#{label} "
-      str.write properties.entries.map { |e|"#{e[0]}=\"#{e[1]}\"" }.join(", ")
+      str.write properties.entries.map { |e| "#{e[0]}=#{e[1].inspect}" }.join(", ")
       str.write ">"
       str.string
     end
@@ -72,6 +59,39 @@ module PrisonParser
       # do nothing
     end
 
+    # Equality
+
+    def eql?(other)
+      # quick check:
+        # make sure property keys are the same
+        # make sure node labels are equal
+
+      # Semi deep: compare the properties
+
+      # DEEP:
+        # Compare the nodes
+
+      return false unless other.is_a?(Node)
+
+      # Check properties
+      return false unless properties.eql?(other.properties)
+
+      # Check node labels
+      node_labels = nodes.values.map(&:label).sort
+      other_labels = other.nodes.values.map(&:label).sort
+
+      # Quick check to ensure both have the same labels
+      return false unless node_labels.eql?(other_labels)
+
+      # Compare all the nodes
+      nodes.each_key do |node_key|
+        return false unless nodes[node_key].eql?(other.nodes[node_key])
+      end
+
+      return true
+    end
+
+    alias_method :==, :eql?
 
     # WRITING
 
@@ -92,6 +112,35 @@ module PrisonParser
         else
           writer.write_property(k, value)
         end
+      end
+    end
+
+    # For accessing properties/nodes
+    def [](key)
+      if properties.has_key?(key)
+        properties[key]
+      elsif nodes.has_key?(key)
+        nodes[key]
+      else
+        nil
+      end
+    end
+
+
+    def method_missing(name, *args, &block)
+      # Look in Nodes
+      # Look in properties
+      # if ends with ?, cast property to boolean
+      # else SUPER
+
+      name = name.to_s
+
+      if properties.has_key?(name)
+        properties[name]
+      elsif nodes.has_key?(name)
+        nodes[name]
+      else
+        super
       end
     end
 

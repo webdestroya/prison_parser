@@ -14,7 +14,5 @@ end
 require "prison_parser"
 
 RSpec.configure do |config|
-
   config.order = "random"
-
 end

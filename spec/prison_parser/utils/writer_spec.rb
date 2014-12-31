@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe PrisonParser::Utils::Writer do
   let(:parser) { PrisonParser::Utils::Parser.new }
-  let(:prison) { parser.load("spec/fixtures/full.prison") }
+  let(:prison) { PrisonParser::Prison.open("spec/fixtures/full.prison") }
 
   describe "#write_prison" do
     it "writes a prison that can be parsed" do
@@ -13,8 +13,8 @@ describe PrisonParser::Utils::Writer do
 
       PrisonParser::Utils::Writer.new(temp1).write_prison(prison)
       temp1.close
-
-      prison2 = parser.load(temp1.path)
+      
+      prison2 = PrisonParser::Prison.open(temp1.path)
 
       PrisonParser::Utils::Writer.new(temp2).write_prison(prison2)
       temp2.close
