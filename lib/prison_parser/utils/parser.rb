@@ -8,11 +8,12 @@ module PrisonParser
         @tokens = []
       end
 
-      def load(stream)
+      def load(stream, parent_class = nil)
+        parent_class ||= PrisonParser::Node
         line_num = 0
         nodes = []
         @tokens = []
-        currentNode = Prison.new
+        currentNode = parent_class.new
 
         while !stream.eof? do
           line = stream.readline.strip

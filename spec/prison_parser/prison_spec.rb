@@ -11,6 +11,16 @@ describe PrisonParser::Prison do
     end
   end
 
+  describe "specialized nodes" do
+
+    it "uses special models when available" do
+      prison = subject.new
+
+      expect(prison.create_node("Thing")).to be_instance_of(PrisonParser::Node)
+      expect(prison.create_node("Finance")).to be_instance_of(PrisonParser::Models::Finance)
+    end
+  end
+
   describe "#save" do
     let!(:prison) { PrisonParser::Prison.open("spec/fixtures/deathrow.prison") }
 

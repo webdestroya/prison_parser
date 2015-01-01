@@ -42,7 +42,7 @@ module PrisonParser
     end
 
     def create_node(node_label)
-      node = Node.new(node_label)
+      node = get_node_class(node_label).new(node_label)
       if nodes.has_key?(node_label)
         if nodes[node_label].is_a?(Array)
           @nodes[node_label] << node
@@ -141,6 +141,41 @@ module PrisonParser
         nodes[name]
       else
         super
+      end
+    end
+
+    # Class methods
+    class << self
+
+      # Specifies a specialized class to be used for nodes with a specific label
+      #
+      # @example
+      #   class Prison < Node
+      #     node_class :Finance, PrisonParser::Models::Finance
+      #   end
+      #
+      # @param label [String,Symbol] The label value that should use the specified class
+      # @param klass [Class] The class that the node should use. This should inherit from {PrisonParser::Node}
+      # @param options [Hash] Additional options
+      # @option options [Boolean] :multiple
+      #
+      # @return [void]
+      def node_class(label, klass, options={})
+        node_classes["#{label}"] = klass
+      end
+
+      def node_classes
+        @node_classes ||= Hash.new
+      end
+    end
+
+    protected
+
+    def get_node_class(lbl)
+      if self.class.node_classes.has_key?(lbl)
+        self.class.node_classes[lbl]
+      else
+        PrisonParser::Node
       end
     end
 

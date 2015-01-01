@@ -6,9 +6,25 @@ describe PrisonParser::Node do
   it "#add_property"
 
   describe "#create_node" do
-    it "uses special models when available"
-    it "converts to an array if multiple values added"
+    it "returns a Node object" do
+      new_node = node.create_node("SomeLabel")
+      expect(new_node).to be_instance_of(PrisonParser::Node)
+      expect(new_node.label).to eq "SomeLabel"
+      expect(node.SomeLabel).to be new_node
+    end
+
+    it "converts to an array if multiple values added" do
+      node.create_node("SomeLabel")
+      expect(node.SomeLabel).to be_instance_of(PrisonParser::Node)
+      node.create_node("SomeLabel")
+      expect(node.SomeLabel).to be_instance_of(Array)
+      expect(node.SomeLabel).to all(be_instance_of(PrisonParser::Node))
+    end
   end
+
+  it ".node_class"
+
+  it ".node_classes"
 
   it "#write_nodes"
 

@@ -1,6 +1,8 @@
 module PrisonParser
   class Prison < Node
 
+    node_class :Finance, PrisonParser::Models::Finance
+
     def initialize
       super("Prison")
     end
@@ -12,7 +14,7 @@ module PrisonParser
     # @return [Prison]
     def self.open(filename)
       file = File.open(filename, "r")
-      prison = PrisonParser::Utils::Parser.new.load(file)
+      prison = PrisonParser::Utils::Parser.new.load(file, Prison)
       file.close
       return prison
     end
@@ -29,10 +31,8 @@ module PrisonParser
     end
 
     def create_node(node_label)
-      if PrisonParser::Models.const_defined?(node_label)
-        node = PrisonParser::Models.const_get(node_label).new
-        @nodes[node.label] = node
-        node
+      if node_label == "Cells"
+        nodes['Cells'] ||= PrisonParser::Models::Cells.new(self.NumCellsX.to_i, self.NumCellsY.to_i)
       else
         super
       end

@@ -7,13 +7,13 @@ describe PrisonParser::Utils::Parser do
 
     context "loads various prisons" do
       it "loads deathrow prison" do
-        prison = parser.load(File.open("spec/fixtures/deathrow.prison"))
+        prison = parser.load(File.open("spec/fixtures/deathrow.prison"), PrisonParser::Prison)
         expect(prison.NumCellsX).to eq "110"
         expect(prison.NumCellsY).to eq "80"
       end
 
       it "loads full prison" do
-        prison = parser.load(File.open("spec/fixtures/full.prison"))
+        prison = parser.load(File.open("spec/fixtures/full.prison"), PrisonParser::Prison)
       end
     end
 
