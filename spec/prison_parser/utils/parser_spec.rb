@@ -17,6 +17,38 @@ describe PrisonParser::Utils::Parser do
       end
     end
 
+    context "loads materials file" do
+      let(:mat) do
+        parser.load(File.open("spec/fixtures/materials.txt"))
+      end
+    end
+
+    context "error handling" do
+
+      context "exceptions" do
+        let(:parse_error) { PrisonParser::Utils::Parser::ParseError }
+        it { expect(parse_error.new).to be_kind_of(StandardError) }
+        it { expect(PrisonParser::Utils::Parser::UnevenTokenError.new).to be_kind_of(parse_error) }
+        it { expect(PrisonParser::Utils::Parser::UnexpectedEndOfLineError.new).to be_kind_of(parse_error) }
+        it { expect(PrisonParser::Utils::Parser::UnexpectedEndOfFileError.new).to be_kind_of(parse_error) }
+      end
+
+      it "handles invalid end of file" do
+        stream = StringIO.new("Thing blah\nBEGIN Stuff\n")
+        expect { subject.load(stream) }.to raise_error(PrisonParser::Utils::Parser::UnexpectedEndOfFileError)
+      end
+
+      it "handles invalid end of line" do
+        stream = StringIO.new("Thing blah\nBEGIN Stuff Name Job Mat Blah Yar")
+        expect { subject.load(stream) }.to raise_error(PrisonParser::Utils::Parser::UnexpectedEndOfLineError)
+      end
+
+      it "handles uneven tokens" do
+        stream = StringIO.new("Thing blah\nBEGIN Stuff Name Job Mat Blah Yar END")
+        expect { subject.load(stream) }.to raise_error(PrisonParser::Utils::Parser::UnevenTokenError)
+      end
+    end
+
     context "only adds valid properties" do
       let(:prop_test_str) do
         <<-PROPTEST
@@ -49,5 +81,9 @@ describe PrisonParser::Utils::Parser do
     it { expect(parser.tokenize(" This is a test ")).to eq %w(This is a test) }
     it { expect(parser.tokenize("This is a test ")).to eq %w(This is a test) }
     it { expect(parser.tokenize("This \"is a\" test")).to eq ["This", "is a", "test"] }
+
+    context "errors" do
+      it { expect { parser.tokenize("This \"is a test") }.to raise_error(PrisonParser::Utils::Parser::UnmatchedQuoteError) }
+    end
   end
 end

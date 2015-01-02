@@ -9,6 +9,7 @@ SimpleCov.start do
 
   add_group "Models", "prison_parser/models"
   add_group "Utils", "prison_parser/utils"
+  add_group "Materials", "prison_parser/materials"
 end
 
 require "prison_parser"

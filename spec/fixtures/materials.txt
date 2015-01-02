@@ -1,0 +1,78 @@
+BEGIN Object
+    Name                 None
+END
+
+BEGIN Object
+    Name                 Box
+    MoveSpeedFactor      0.750000
+    Toughness            10.0000
+    RenderDepth          1
+    Sprite               Box
+    SpriteScale          0.9
+    MadeOf               Wood
+    Properties           Material
+END
+
+BEGIN Object
+    Name                 Workman
+    Toughness            5.0000
+    Price                -500
+    RenderDepth          2
+    ViewRange            3
+    BlockedBy            Wall
+    BlockedBy            StaticObject
+    BlockedBy            UtilityStation
+    Sprite               Workman
+    SpriteVariants       4
+    Properties           Entity
+    Properties           Staff
+END
+
+BEGIN Material
+    Name                 Dirt
+    ConstructionTime     1.00000
+    MoveCost             0.700000
+    SoftEdged            1
+    IndoorOutdoor        1
+    SpriteType           RandomArea
+    SpriteOverlayScale   5
+    NumSprites           2
+    BEGIN Sprite0    x 5  y 4  END
+    BEGIN Sprite1    x 5  y 2  END
+END
+
+BEGIN Room
+    Name                 Yard
+    BEGIN Requirement Type MinimumSize  x 5  y 5  END
+    BEGIN Requirement Type Secure END
+    BEGIN LikelyObject  Id    WeightsBench  END
+    BEGIN LikelyObject  Id    PhoneBooth    END
+END
+
+BEGIN Room
+    Name Storage
+    BEGIN Contraband    Id      Screwdriver     END
+    BEGIN Contraband    Id      Saw             END
+    BEGIN Contraband    Id      Drill           END
+    BEGIN Contraband    Id      Hammer          END
+END
+
+BEGIN Room       Name Exports  END
+
+BEGIN Equipment
+    Name                 Baton
+    Sprite               HandBaton
+    AttackPower          1.50000
+    RechargeTime         1.50000
+    Properties           Weapons
+END
+
+BEGIN Callout
+    Name                 FireEngine
+    Cost                 -100
+    MaxNumber            2
+    Vehicle              FireEngine
+    Entity               Fireman
+    NumEntities          4
+    Sprite               EmergencyFireEngine
+END

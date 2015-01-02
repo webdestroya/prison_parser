@@ -128,17 +128,8 @@ module PrisonParser
 
 
     def method_missing(name, *args, &block)
-      # Look in Nodes
-      # Look in properties
-      # if ends with ?, cast property to boolean
-      # else SUPER
-
-      name = name.to_s
-
-      if properties.has_key?(name)
-        properties[name]
-      elsif nodes.has_key?(name)
-        nodes[name]
+      if properties.has_key?(name.to_s) || nodes.has_key?(name.to_s)
+        self[name.to_s]
       else
         super
       end

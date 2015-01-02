@@ -30,7 +30,27 @@ describe PrisonParser::Node do
 
   it "#write_properties"
 
-  it "#method_missing"
+  describe "#method_missing" do
+    let(:node) do
+      PrisonParser::Node.new("Test").tap do |n|
+        n.create_node("TestNode")
+        n.add_property("TestProp", "prop_val")
+      end
+    end
+
+    it "returns a matching property" do
+      expect(node.TestProp).to eq "prop_val"
+    end
+
+    it "returns a matching node" do
+      expect(node.TestNode).to be_instance_of PrisonParser::Node
+      expect(node.TestNode.label).to eq "TestNode"
+    end
+
+    it "raises an error if no property or node was found" do
+      expect { node.MissingPropOrVal }.to raise_error(NoMethodError)
+    end
+  end
 
   it "#[]"
 

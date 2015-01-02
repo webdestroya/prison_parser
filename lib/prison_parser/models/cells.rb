@@ -11,9 +11,10 @@ module PrisonParser
         @cells[x][y]
       end
 
-      def <<(cell)
+      def push(cell)
         @cells[cell.x][cell.y] = cell
       end
+      alias_method :<<, :push
 
       def each
         @cells.flatten.compact.each do |cell|
@@ -23,7 +24,7 @@ module PrisonParser
 
       def create_node(label)
         x, y = label.split.map(&:to_i)
-        @cells[x][y] = Cell.new(x, y)
+        push Cell.new(x, y)
       end
 
     end

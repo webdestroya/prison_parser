@@ -35,8 +35,6 @@ describe PrisonParser::Prison do
       prison.save(temp_prison.path)
 
       expect(File.exist?(temp_prison.path)).to be_truthy
-      # file =
-
     end
 
     it "a proper prison file is created" do

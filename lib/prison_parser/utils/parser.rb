@@ -2,18 +2,38 @@ module PrisonParser
   module Utils
     class Parser
 
+      # Base error type for all parser exceptions
+      class ParseError < StandardError; end
+
+      # Throw when there are an odd number of token pairs
+      # given on an inline node definition
+      class UnevenTokenError < ParseError; end
+
+      # The last token of an inline node must be +END+
+      class UnexpectedEndOfLineError < ParseError; end
+
+      # File contains unmatched node definitions
+      class UnexpectedEndOfFileError < ParseError; end
+
+      # File contains unmatched quote
+      class UnmatchedQuoteError < ParseError; end
+
       attr_reader :tokens
 
       def initialize
         @tokens = []
       end
 
-      def load(stream, parent_class = nil)
-        parent_class ||= PrisonParser::Node
+      # Parses the given stream and returns a node tree
+      #
+      # @param stream [IO] The +IO+ stream to parse from.
+      # @param parent_class [Class] The class for the root node.
+      def load(stream, root_class = nil)
+        root_class ||= PrisonParser::Node
         line_num = 0
         nodes = []
         @tokens = []
-        currentNode = parent_class.new
+        current_node = root_class.new
 
         while !stream.eof? do
           line = stream.readline.strip
@@ -24,56 +44,56 @@ module PrisonParser
 
           # start a new node
           if "BEGIN" == tokens[0]
-            nodes.push(currentNode)
+            nodes.push(current_node)
 
             label = tokens[1]
-            currentNode = currentNode.create_node(label)
+            current_node = current_node.create_node(label)
 
             if tokens.size > 2
               # inline node
               if tokens.size % 2 != 1
-                raise "Unexpected number of tokens in an inline node definition on line #{line_num}"
+                raise UnevenTokenError.new("Unexpected number of tokens in an inline node definition on line #{line_num}")
               end
 
               unless "END" == tokens[tokens.size - 1]
-                raise "Unexpected end of inline node definition on line #{line_num}"
+                raise UnexpectedEndOfLineError.new("Unexpected end of inline node definition on line #{line_num}")
               end
 
+              # Don't iterate the 'BEGIN', label, 'END'
               tokens[2..-2].each_slice(2) do |parts|
-                # the first one is bogus :/
-                currentNode.add_property(parts[0], parts[1])
+                current_node.add_property(parts[0], parts[1])
               end
 
-              upperNode = nodes.pop
-              upperNode.finished_reading_node(currentNode)
-              currentNode = upperNode
+              upper_node = nodes.pop
+              upper_node.finished_reading_node(current_node)
+              current_node = upper_node
             else
-              currentNode.prevent_inlining!
+              current_node.prevent_inlining!
             end
           elsif "END" == tokens[0]
             # end of multi-line section
-            upperNode = nodes.pop
-            upperNode.finished_reading_node(currentNode)
-            currentNode = upperNode
+            upper_node = nodes.pop
+            upper_node.finished_reading_node(current_node)
+            current_node = upper_node
           else
             # inside a multi-line section
-            currentNode.add_property(tokens[0], tokens[1])
+            current_node.add_property(tokens[0], tokens[1])
           end
         end
 
         if nodes.size != 0
-          raise "Unexpected end of file!"
+          raise UnexpectedEndOfFileError.new("Unexpected end of file!")
         end
 
-        currentNode
+        current_node
       end
 
       # Splits a line into a series of tokens
       def tokenize(line)
-        return if line.size == 0
-
         tokens.clear
 
+        return if line.size == 0
+        line = line.tr("\t", ' ')
         token_start = 0
         i = 0
         chars = line.chars
@@ -90,17 +110,16 @@ module PrisonParser
             # skip ahead to the next quote
             end_quotes = line.index('"', i + 1)
 
-            end_quotes = -1 if end_quotes.nil?
+            raise UnmatchedQuoteError.new("Unmatched quote on '#{line}'") if end_quotes.nil?
 
             tokens << line[i + 1, end_quotes - i - 1]
             i = end_quotes
             token_start = i + 1
           else
             # skip ahead to the next space
-            next_space = line.index(' ', i)
-            next_space = -1 if next_space.nil?
+            next_space = line.index(' ', i) || -1
             i = next_space - 1
-            break if (i < 0)
+            break if i < 0
           end
           i += 1
         end
